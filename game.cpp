@@ -87,7 +87,7 @@ Player startGame(char input){
 void inGame(Player player){
     std::cout << "welcome to the game Player " << player.getName() <<"!" << std::endl;
     char input = 'p';
-    while(input == 'f' || input == 'p' || input == 's'){
+    while(input != 'e'){
 
         std::cout << "Enter one of the following options to continue: " << std::endl;
         std::cout << "  - start a fight 'f'" << std::endl;
