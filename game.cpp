@@ -3,16 +3,21 @@
 
 class Player{
 private:
+//2 new var attack points and defense points ingame time
     unsigned int HP = 100;
     std::string charName;
 
 public:
-
+// restore health function (max health upper bound)
     std::string getName(){return charName;}
     unsigned int getHP (){return HP;}
-
+//show stats function
     void fight(unsigned int damage=10){
         this->HP -= damage;
+        // damage = attack points - defense points
+        // damage >=0
+        //fight = for loop till one die
+        //increment ingame time
     }
 
     Player(std::string name): charName(name){};
@@ -39,7 +44,7 @@ char mainMenu(){
     return input;  
 }
 
-Player loadSavedStats(std::string filename = "./saved_stats.csv"){
+Player loadSavedStats(std::string filename = "./saves/saved_stats.csv"){
     std::ifstream csv_file(filename);
     if(csv_file.is_open()){
         std::string name;
@@ -60,7 +65,7 @@ Player loadSavedStats(std::string filename = "./saved_stats.csv"){
     return dummyPlayer;
 }
 
-void saveStats(Player& player, std::string filename = "./saved_stats.csv"){
+void saveStats(Player& player, std::string filename = "./saves/saved_stats.csv"){
     std::ofstream csv_file(filename);
     if(csv_file.is_open()){
         csv_file << player.getName() << "\n";
@@ -98,7 +103,9 @@ void inGame(Player player){
 
 
         if(input == 'f'){
+            //fight function -> point zum gegner als input
             player.fight();
+
             std::cout<< "Fight!!!!"<<std::endl;
             std::cout << "you lost 10 hp!" << std::endl;
             if(player.getHP() <= 0){
@@ -108,6 +115,7 @@ void inGame(Player player){
             }
         }
         else if (input == 'p'){
+            // time, attack points, defense -> new function show stats
             std::cout << player.getName() << " your current HP is " << player.getHP()<<std::endl;
         }
         else if (input == 's'){
@@ -119,9 +127,12 @@ void inGame(Player player){
 }
 
 int main(){
+    // class enemy
     char const userInput=mainMenu();
     if(userInput != 'e'){
+        //create player as a pointer
         Player player = startGame(userInput);
+        //inGame(pointer)
         inGame(player);
     }
 
