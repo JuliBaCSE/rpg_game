@@ -1,16 +1,17 @@
 #include <iostream>
 #include <fstream>
 
+
 class Player{
 private:
 //2 new var attack points and defense points ingame time
-    unsigned int HP = 100;
+    int HP = 100;
     std::string charName;
 
 public:
 // restore health function (max health upper bound)
     std::string getName(){return charName;}
-    unsigned int getHP (){return HP;}
+    int getHP (){return HP;}
 //show stats function
     void fight(unsigned int damage=10){
         this->HP -= damage;
@@ -44,16 +45,16 @@ char mainMenu(){
     return input;  
 }
 
-Player loadSavedStats(std::string filename = "./saves/saved_stats.csv"){
+std::unique_ptr<Player> loadSavedStats(std::string filename = "./saves/saved_stats.csv"){
     std::ifstream csv_file(filename);
     if(csv_file.is_open()){
         std::string name;
-        unsigned int HP;
+        int HP;
 
         csv_file>>name;
         csv_file>>HP;
-
-        Player newPlayer(name,HP);
+        std::unique_ptr<Player> newPlayer;
+        newPlayer = std::make_unique<Player>(name,HP);
 
         csv_file.close();
         return newPlayer;
@@ -61,15 +62,16 @@ Player loadSavedStats(std::string filename = "./saves/saved_stats.csv"){
     else{
         std::cout << "couldn't open the file" << std::endl;
     }
-    Player dummyPlayer("Unknown");
-    return dummyPlayer;
+    std::unique_ptr<Player> newPlayer;
+    newPlayer = std::make_unique<Player>("Unknown");
+    return newPlayer;
 }
 
-void saveStats(Player& player, std::string filename = "./saves/saved_stats.csv"){
+void saveStats(std::unique_ptr<Player> &player, std::string filename = "./saves/saved_stats.csv"){
     std::ofstream csv_file(filename);
     if(csv_file.is_open()){
-        csv_file << player.getName() << "\n";
-        csv_file <<player.getHP();
+        csv_file << player->getName() << "\n";
+        csv_file << player->getHP();
         csv_file.close();
     }
     else{
@@ -77,23 +79,24 @@ void saveStats(Player& player, std::string filename = "./saves/saved_stats.csv")
     }
 }
 
-Player startGame(char input){
+std::unique_ptr<Player> startGame(char input){
     if(input == 'n'){
         std::cout << "Please enter a name for your character" << std::endl;
         std::string name;
         std::cin >> name;
-        Player newPlayer(name);
+        std::unique_ptr<Player> newPlayer;
+        newPlayer = std::make_unique<Player>(name);
         return newPlayer;
     }
 
     return loadSavedStats();
 }
 
-void inGame(Player player){
-    std::cout << "welcome to the game Player " << player.getName() <<"!" << std::endl;
+void inGame(std::unique_ptr<Player> &player){
+    std::cout << "welcome to the game Player " << player->getName() <<"!" << std::endl;
     char input = 'p';
     while(input != 'e'){
-
+        // add rest 
         std::cout << "Enter one of the following options to continue: " << std::endl;
         std::cout << "  - start a fight 'f'" << std::endl;
         std::cout << "  - show stats press 'p'" << std::endl;
@@ -104,11 +107,11 @@ void inGame(Player player){
 
         if(input == 'f'){
             //fight function -> point zum gegner als input
-            player.fight();
+            player->fight();
 
             std::cout<< "Fight!!!!"<<std::endl;
             std::cout << "you lost 10 hp!" << std::endl;
-            if(player.getHP() <= 0){
+            if(player->getHP() <= 0){
                 std::cout << "You died!!" <<std::endl;
                 std::cout << "GAME OVER!" <<std::endl;
                 input = 'e'; // exit game
@@ -116,7 +119,7 @@ void inGame(Player player){
         }
         else if (input == 'p'){
             // time, attack points, defense -> new function show stats
-            std::cout << player.getName() << " your current HP is " << player.getHP()<<std::endl;
+            std::cout << player->getName() << " your current HP is " << player->getHP()<<std::endl;
         }
         else if (input == 's'){
             saveStats(player);
@@ -131,7 +134,7 @@ int main(){
     char const userInput=mainMenu();
     if(userInput != 'e'){
         //create player as a pointer
-        Player player = startGame(userInput);
+        std::unique_ptr<Player> player = startGame(userInput);
         //inGame(pointer)
         inGame(player);
     }
