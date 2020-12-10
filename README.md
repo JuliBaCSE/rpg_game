@@ -1,2 +1,2 @@
 # rpg_game
-little rag game in C++
+little rpg game in C++
