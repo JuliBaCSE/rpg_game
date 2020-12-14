@@ -3,7 +3,9 @@
 
 
 Player::Player(std::string name): charName(name){}
-Player::Player(std::string name, unsigned int HP, unsigned int time): charName(name), HP(HP), gameTime(time){}
+Player::Player(std::string name, unsigned int HP, unsigned int time,unsigned attackPoints, unsigned int defPoints):
+    charName(name), HP(HP), gameTime(time),
+    attackPoints(attackPoints), defensePoints(defPoints){}
 
 void Player::restoreHP(){
     std::cout << "Healing started!" << std::endl;

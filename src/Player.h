@@ -22,13 +22,17 @@ public:
     void restoreHP();
     std::string getName(){return charName;}
     int getHP (){return HP;}
+    unsigned int getAttPoints(){return attackPoints;}
+    unsigned int getDefPoints(){return defensePoints;}
+
+
 //show stats function ggf besser ordnen vielleicht tabelle
     void showStats();
 
     void fight(std::unique_ptr<Enemy> &enemy);
 
     Player(std::string name);
-    Player(std::string name, unsigned int HP, unsigned int time);
+    Player(std::string name, unsigned int HP, unsigned int time, unsigned attackPoints, unsigned int defPoints);
 };
 
 
