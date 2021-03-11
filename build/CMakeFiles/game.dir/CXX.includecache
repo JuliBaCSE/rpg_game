@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/julianballetshofer/Desktop/Programming_TUM/CSE/adv_programming_cmake_set/project_rpg/project_rpg/src/Enemy.h
+iostream
+-
+vector
+-
+
+/Users/julianballetshofer/Desktop/Programming_TUM/CSE/adv_programming_cmake_set/project_rpg/project_rpg/src/Player.cpp
+Player.h
+/Users/julianballetshofer/Desktop/Programming_TUM/CSE/adv_programming_cmake_set/project_rpg/project_rpg/src/Player.h
+
+/Users/julianballetshofer/Desktop/Programming_TUM/CSE/adv_programming_cmake_set/project_rpg/project_rpg/src/Player.h
+iostream
+-
+Enemy.h
+/Users/julianballetshofer/Desktop/Programming_TUM/CSE/adv_programming_cmake_set/project_rpg/project_rpg/src/Enemy.h
+Table.h
+/Users/julianballetshofer/Desktop/Programming_TUM/CSE/adv_programming_cmake_set/project_rpg/project_rpg/src/Table.h
+memory
+-
+
+/Users/julianballetshofer/Desktop/Programming_TUM/CSE/adv_programming_cmake_set/project_rpg/project_rpg/src/Table.h
+iostream
+-
+iomanip
+-
+

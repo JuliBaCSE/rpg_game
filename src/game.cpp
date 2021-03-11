@@ -1,68 +1,35 @@
 #include <iostream>
-
+#include <memory>
 #include "load_save.h"
 #include "Player.h"
 #include "Enemy.h"
-
-// allgemeine Klasse und Player eins drueber
+#include "Table.h"
+#include "Mage.h"
+#include "Fighter.h"
+#include "Bot.h"
 
 
 char mainMenu(){
-    std::cout << "welcome to the game!" << std::endl;
-    std::cout << "Enter one of the following option: " << std::endl;
-    std::cout << "  - start a new Game press 'n'" << std::endl;
-    std::cout << "  - load a past Game press 'l'" << std::endl;
-    std::cout << "  - to exit press 'e'" << std::endl;
+    show1( "welcome to the game!" );
+    show1( "Enter one of the following option: " );
+    show2( "  - start a new Game press"," 'n'" );
+    show2( "  - load a past Game press"," 'l'" );
+    show2("  - bot mode", " 'b'");
+    show2( "  - to exit press"," 'e'" );
     char input;
     std::cin >> input;
 
-    while(input != 'n' && input != 'l' && input != 'e'){
-        std::cout<< "unknown input, try again"<< std::endl;
-        std::cout << "Enter one of the following option: " << std::endl;
-        std::cout << "  - start a new Game press 'n'" << std::endl;
-        std::cout << "  - load a past Game press 'l'" << std::endl;
-        std::cout << "  - to exit press 'e'" << std::endl;
+    while(input != 'n' && input != 'l' && input != 'e' && input != 'b'){
+        show1("unknown input, try again");
+        show1( "Enter one of the following option: " );
+        show2( "  - start a new Game press"," 'n'" );
+        show2( "  - load a past Game press"," 'l'" );
+        show2("  - bot mode", " 'b'");
+        show2( "  - to exit press"," 'e'" );
         std::cin >> input;
     }
     return input;  
 }
-// std::unique_ptr<Player> loadSavedStats(std::string filename = "./saves/saved_stats.csv")
-// {
-//     std::ifstream csv_file(filename);
-//     if(csv_file.is_open()){
-//         std::string name;
-//         int HP;
-//         unsigned int time;
-// // load time 
-//         csv_file>>name;
-//         csv_file>>HP;
-//         csv_file>>time;
-//         std::unique_ptr<Player> newPlayer;
-//         newPlayer = std::make_unique<Player>(name,HP,time);
-
-//         csv_file.close();
-//         return newPlayer;
-//     }
-//     else{
-//         std::cout << "couldn't open the file" << std::endl;
-//     }
-//     std::unique_ptr<Player> newPlayer;
-//     newPlayer = std::make_unique<Player>("Unknown");
-//     return newPlayer;
-// }
-
-// void saveStats(std::unique_ptr<Player> &player, std::string filename = "./saves/saved_stats.csv"){
-//     std::ofstream csv_file(filename);
-//     if(csv_file.is_open()){
-//         csv_file << player->getName() << "\n";
-//         csv_file << player->getHP()<< "\n";
-//         csv_file << player->getTime();
-//         csv_file.close();
-//     }
-//     else{
-//         std::cout << "couldn't save stats" << std::endl;
-//     }
-// }
 
 std::unique_ptr<Player> startGame(char input){
     if(input == 'n'){
@@ -73,8 +40,28 @@ std::unique_ptr<Player> startGame(char input){
         newPlayer = std::make_unique<Player>(name);
         return newPlayer;
     }
-
-    return loadSavedStats();
+    else{
+        std::cout << "which game do you want to load <-> input the number: " << std::endl;
+        std::vector<std::string> files = loadFileNames();
+        if (files.size()!= 0){
+            int fileNumber = 0;
+            std::cin>>fileNumber;
+            while (fileNumber < 1 || fileNumber > files.size()){
+                std::cout << "invalid input !! ------>try again" << std::endl;
+                std::cin>>fileNumber;
+            }
+            return loadSavedStats(files[fileNumber-1]);
+        }
+        else{
+            std::cout << "seems there are no files so lets start a new game" <<std::endl;
+            std::cout << "Please enter a name for your character" << std::endl;
+            std::string name;
+            std::cin >> name;
+            std::unique_ptr<Player> newPlayer;
+            newPlayer = std::make_unique<Player>(name);
+            return newPlayer;
+        }
+    }
 }
 
 void inGame(std::unique_ptr<Player> &player){
@@ -82,57 +69,121 @@ void inGame(std::unique_ptr<Player> &player){
     char input = 'p';
     while(input != 'e'){
         // add rest 
-        std::cout << "Enter one of the following options to continue: " << std::endl;
-        std::cout << "  - start a fight 'f'" << std::endl;
-        std::cout << "  - show stats press 'p'" << std::endl;
-        std::cout << "  - to heal press h" << std::endl;
-        std::cout << "  - to save current game 's'" << std::endl;
-        std::cout << "  - to exit press 'e'" << std::endl;
+        show1( "Enter one of the following options to continue: " );
+        show2( "  - start a fight ","'f'" );
+        show2( "  - show stats press ","'p'" );
+        show2( "  - to restore press ","'h'" );
+        show2( "  - to save current game " ,"'s'" );
+        show2( "  - to exit press ","'e'" );        
         std::cin >> input;
 
-
         if(input == 'f'){
-            //fight function -> point zum gegner als input
-            
+            //fight function -> point zum gegner als input            
             std::cout<< "Fight!!!!"<<std::endl;
-
             std::unique_ptr<Enemy> enemy;
-            enemy = std::make_unique<Enemy>(); 
+            enemy = std::make_unique<Enemy>(player->getTime(),player->getLevel()); 
             player->fight(enemy);
-            if(player->getHP() <= 0){
-                std::cout << "You died!!" <<std::endl;
+            if(player->getCurrentHP() <= 0){
+                std::cout << "You were killed by " << enemy->enemyName << "!"<<std::endl;
                 std::cout << "GAME OVER!" <<std::endl;
-                input = 'e'; // exit game
+                break; // exit game
             }
             else{
                 std::cout << "You won the fight!" <<std::endl;
-                std::cout << "You have "<< player->getHP() << " HP left" << std::endl;
+                std::cout << "You have "<< player->getCurrentHP() << " HP left" << std::endl;
+                player->levelUp();
+            }
+            if(player->getLevel() == 5){ //Choose new class after level 5
+                std::cout << std::endl;
+                std::cout << "Congrats you reach Level 5!! That means you are allowed to chose a new Class" << std::endl;
+                std::cout << "Therefore you have 2 options:" << std::endl<< std::endl;
+                show2(" 1. Mage: ", "with this class you will be able to cast unbeleavable strong magic spells");
+                std::cout<<" 2. Fighter: with this class you will turn into a bloody fighter that can do critical Strikes once he is in a bloooody mood"<<std::endl;
+      
+                char choice = 'd';
+                while(choice != 'm' && choice != 'f'){
+                    std::cout << "Now do a wise choice!!"<< std::endl<< std::endl;
+                    show2(" - Transform into a Mage press", "m");
+                    show2(" - Transform to be a bloody fighter press", "f");
+    
+                    std::cin>>choice;
+                    if(choice == 'm'){
+                        player = std::make_unique<Mage>(player);
+                        std::cout<< "Good choice!! Maybe you will become the new Gandalf!"
+                        << "\nKeep in mind to use your new Power wisely"<<"\n"<<std::endl;
+                        player->showStats();
+                    }
+                    else if(choice == 'f'){
+                        player = std::make_unique<Fighter>(player);
+                        std::cout<< "Good choice!! Maybe you will become the new Gimli!"
+                        << "\n Keep in mind to use your new Strength wisely"
+                        <<"\n those are your new Stats: "<<std::endl;
+                        player->showStats();
+                    }
+                    else{
+                        std::cout << "Seems that you aren't sure try it again!" << std::endl;
+                    }
+                }
             }
         }
         else if (input == 'h'){
             player->restoreHP();
         }
         else if (input == 'p'){
-            // time, attack points, defense -> new function show stats
             player->showStats();
         }
         else if (input == 's'){
-            saveStats(player);
-            std::cout<<"Game got saved"<<std::endl;
-        }
+            show2("If you want to save into a new file press","n");
+            show2("If you want to save into a old file press", "o");
+            char fileChar;
+            std::cin>>fileChar;
+            if(fileChar == 'n'){
+                std::cout << "type in the filename to save the Filename to the current Status"<<std::endl;
+                std::string filename;
+                std::cin >> filename;
+                filename = filename + ".csv";
+                saveFileNames(filename);
+                saveIntoFile(filename, player);
+            }
+            else{
+                std::cout << "which file do you want to override type in the number: "<<std::endl;
+                std::vector<std::string> files = loadFileNames();
+                if (files.size() < 1){
+                    std::cout << "seems there are no files" <<std::endl;
+                    std::cout << "type in the filename to save the Filename to the current Status"<<std::endl;
+                    std::string filename;
+                    std::cin >> filename;
+                    filename = filename + ".csv";
+                    saveIntoFile(filename, player);
+                    saveFileNames(filename);
+                }
+                else{
+                    int fileNumber = 0;
+                    std::cin>>fileNumber;
+                    while (fileNumber < 1 || fileNumber > files.size()){
+                        std::cout << "invalid input !! ------>try again" << std::endl;
+                        std::cin>>fileNumber;
+                    }
+                    saveIntoFile(files[fileNumber-1], player);    
+                }
+            }            
 
+        }
     }
 }
 
 int main(){
-    // class enemy
     char const userInput=mainMenu();
-    if(userInput != 'e'){
+    if(userInput != 'e' && userInput != 'b'){
         //create player as a pointer
         std::unique_ptr<Player> player = startGame(userInput);
         //inGame(pointer)
         inGame(player);
     }
 
+    if (userInput == 'b') {
+        //Simulate the programm
+        Bot time_analysis;
+    }
     return 0;
 }
